@@ -1,0 +1,67 @@
+float pro = 100;
+float sla = 0;
+bool obj = false;
+int sla2 = pro / 6;
+
+unsigned long TAN = 0;
+const unsigned long intervalo = 10000;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(2, OUTPUT); // TRIG(Ca)
+  pinMode(3, INPUT);  // ECHO(Leb)
+  pinMode(4, OUTPUT); // LED(LeoD)
+  pinMode(5, OUTPUT); // Led verde(GUS)
+   pinMode(6, OUTPUT); // Som
+
+  digitalWrite(4, HIGH);
+  digitalWrite(5, HIGH);
+  delay(2000);
+  digitalWrite(4, LOW);
+ 
+}
+
+void loop() {
+
+  digitalWrite(2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(2, LOW);
+
+
+  long tempo = pulseIn(3, HIGH, 30000);
+  int distancia = tempo * 0.034 / 2;
+
+
+  if (distancia > 0 && distancia <= 20) {
+if (!obj) {
+      sla++;
+
+      obj = true;
+    }
+  } else {
+    obj = false;
+  }
+  unsigned long TAT = millis();
+  if (TAT - TAN >= intervalo) {
+    TAN = TAT;
+    
+    if (sla < sla2-1){
+      tone(6, 300);
+      digitalWrite(4, HIGH);
+      digitalWrite(5, LOW);
+      sla=0;
+    }else {
+      noTone(6); 
+      digitalWrite(5, HIGH);
+      digitalWrite(4, LOW);
+      sla=0;
+    }
+    
+  } 
+  
+  delay(50);
+  
+}
+
