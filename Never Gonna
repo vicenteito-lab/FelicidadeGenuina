@@ -1,0 +1,100 @@
+#include <avr/pgmspace.h>
+#define ARRAY_LEN(array) (sizeof(array) / sizeof(array[0]))
+#define B3 247
+#define C4 262
+#define Cb4 277
+#define F4 349
+#define Db4 311
+#define Ab3 233
+#define A4 440
+
+int buzzerPin = 6;
+
+const int midi1[53][3] PROGMEM = {
+  {B3, 136, 0},
+ {C4, 136, 0},
+ {Cb4, 136, 0},
+ {B3, 136, 0},
+ {F4, 136, 273},
+ {F4, 136, 273},
+ {Db4, 136, 545},
+ {Ab3, 136, 0},
+ {B3, 136, 0},
+ {C4, 136, 0},
+ {B3, 136, 0},
+ {Db4, 136, 273},
+ {Db4, 136, 273},
+ {Cb4, 409, 0},
+ {Ab3, 409, 409},
+ {Ab3, 136, 0},
+ {B3, 136, 0},
+ {C4, 136, 0},
+ {B3, 136, 0},
+ {Cb4, 409, 136},
+ {Db4, 409, 0},
+ {B3, 273, 0},
+ {B3, 136, 0},
+ {Ab3, 545, 136},
+ {Ab3, 273, 0},
+ {Db4, 545, 0},
+ {Cb4, 545, 273},
+ {B3, 136, 0},
+ {C4, 136, 0},
+ {Cb4, 136, 0},
+ {B3, 136, 0},
+ {F4, 136, 273},
+ {F4, 136, 273},
+ {Db4, 136, 409},
+ {Ab3, 136, 0},
+ {B3, 136, 0},
+ {C4, 136, 0},
+ {B3, 136, 0},
+ {A4, 409, 0},
+ {C4, 545, 0},
+ {Cb4, 818, 409},
+ {Ab3, 136, 0},
+ {B3, 136, 0},
+ {C4, 136, 0},
+ {B3, 136, 0},
+ {Cb4, 409, 136},
+ {Db4, 409, 0},
+ {B3, 273, 0},
+ {B3, 136, 0},
+ {Ab3, 545, 136},
+ {Ab3, 273, 0},
+ {Db4, 545, 0},
+ {Cb4, 955, 0},
+};
+
+void playMidi(int pin, const int notes[][3], size_t len){
+  for (int i = 0; i < len; i++) {
+    // Lê os valores da memória Flash
+    int freq  = pgm_read_word(&(notes[i][0]));
+    int dur   = pgm_read_word(&(notes[i][1]));
+    int pause = pgm_read_word(&(notes[i][2]));
+
+    // Se a frequência for maior que 0, toca a nota
+    if (freq > 0) {
+      tone(pin, freq);
+    }
+    delay(dur);
+    noTone(pin);
+    delay(pause);
+  }
+}
+// Generated using https://github.com/ShivamJoker/MIDI-to-Arduino
+
+// main.ino or main.cpp
+void setup() {
+ pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+ delay(1000); 
+
+  // Chama a função tocando no pino configurado (6)
+  playMidi(buzzerPin, midi1, ARRAY_LEN(midi1));
+
+  // Espera 3 segundos em silêncio e começa tudo de novo
+  delay(3000);
+}
