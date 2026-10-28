@@ -1,0 +1,345 @@
+#include <avr/pgmspace.h>
+#define ARRAY_LEN(array) (sizeof(array) / sizeof(array[0]))
+#define A3 220
+#define C4 262
+#define E4 330
+#define Gb3 208
+#define G3 196
+#define B3 247
+#define F4 349
+#define D4 294
+#define G4 392
+#define A4 440
+#define C5 523
+#define B4 494
+#define E3 165
+#define Ab3 233
+#define Fb4 370
+#define D5 587
+#define E5 659
+#define G5 784
+#define Gb4 415
+
+
+
+int pinoBuzzer = 6;
+int btnPin = 7;
+int fiscal = HIGH;
+bool est = true;
+unsigned long tempoAnterior = 0;
+int notaAtual = 0;
+int estadoNota = 0;  
+int duracaoAtual = 0;
+int pausaAtual = 0;
+float pro = 100;
+float sla = 0;
+bool obj = false;
+int sla2 = pro / 6;
+unsigned long TAN = 0;
+const unsigned long intervalo = 10000;
+
+const int old = 172;
+
+const int midi1[old][3] PROGMEM = {
+  {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {Gb3, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {D4, 150, 0},
+ {B3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {D4, 150, 0},
+ {C4, 150, 0},
+ {B3, 150, 0},
+ {D4, 150, 0},
+ {G4, 150, 150},
+ {A4, 150, 0},
+ {G4, 150, 0},
+ {F4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {Gb3, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {D4, 150, 0},
+ {B3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {D4, 150, 0},
+ {C4, 150, 0},
+ {B3, 150, 0},
+ {D4, 150, 0},
+ {G4, 150, 0},
+ {B3, 150, 0},
+ {E4, 150, 0},
+ {D4, 150, 0},
+ {C4, 150, 0},
+ {B3, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {Gb3, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {D4, 150, 0},
+ {B3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {D4, 150, 0},
+ {C4, 150, 0},
+ {B3, 150, 0},
+ {D4, 150, 0},
+ {G4, 150, 0},
+ {E4, 150, 0},
+ {C5, 150, 0},
+ {B4, 150, 0},
+ {A4, 150, 0},
+ {B3, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {A3, 150, 0},
+ {Gb3, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {G3, 150, 0},
+ {B3, 150, 0},
+ {F4, 150, 0},
+ {D4, 150, 0},
+ {B3, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {C4, 150, 0},
+ {E4, 150, 0},
+ {G4, 150, 0},
+ {D4, 150, 0},
+ {C4, 150, 0},
+ {B3, 150, 450},
+ {E3, 300, 300},
+ {A3, 300, 0},
+ {C4, 300, 0},
+ {E4, 300, 0},
+ {A3, 300, 0},
+ {C4, 300, 0},
+ {E4, 300, 600},
+ {Ab3, 300, 0},
+ {C4, 300, 0},
+ {E4, 300, 0},
+ {Ab3, 300, 0},
+ {C4, 300, 0},
+ {G4, 300, 600},
+ {F4, 300, 0},
+ {A4, 300, 0},
+ {C5, 300, 0},
+ {Fb4, 300, 0},
+ {A4, 300, 0},
+ {D5, 300, 600},
+ {E4, 300, 0},
+ {G4, 300, 0},
+ {C5, 300, 0},
+ {E4, 300, 0},
+ {D4, 300, 0},
+ {C4, 300, 0},
+ {A3, 300, 0},
+ {C4, 300, 0},
+ {F4, 300, 0},
+ {A3, 300, 0},
+ {C4, 300, 0},
+ {F4, 300, 600},
+ {Fb4, 300, 0},
+ {C5, 300, 0},
+ {E5, 300, 0},
+ {Fb4, 300, 0},
+ {C5, 300, 0},
+ {G5, 300, 600},
+ {F4, 300, 0},
+ {A4, 300, 0},
+ {C5, 300, 0},
+ {F4, 300, 0},
+ {Gb4, 300, 0},
+ {D5, 300, 600},
+ {Gb4, 150, 0},
+ {A4, 150, 0},
+ {G4, 300, 0},
+ {F4, 300, 0},
+ {E4, 300, 0},
+ {D4, 300, 0},
+ {C4, 300, 0},
+ {B3, 300, 0},
+ {C4, 300, 0},
+};
+
+void setup() {
+  
+  pinMode(2, OUTPUT); // TRIG(Ca)
+  pinMode(3, INPUT);  // ECHO(Leb)
+  pinMode(4, OUTPUT); // LED(LeoD)
+  pinMode(5, OUTPUT); // Led verde(GUS)
+   pinMode(6, OUTPUT); // Som
+  
+  Serial.begin(9600); // Inicia o monitor serial
+  pinMode(pinoBuzzer, OUTPUT);
+  pinMode(btnPin, INPUT_PULLUP); // OBS: Se estiver usando o botão direto pro GND sem resistor externo, mude para INPUT_PULLUP
+}
+
+void tocarMidiSemDelay() {
+  // 966 é o número de linhas da sua matriz
+  if (notaAtual >= old) { 
+    est = 0;             // A música terminou, volta ao estado 0
+    noTone(pinoBuzzer);  // Garante que o buzzer desligue
+    notaAtual = 0;       // Zera para a próxima vez
+    return;
+  }
+
+  unsigned long tempoAtual = millis();
+
+  // ESTADO 0: Hora de ler a PROGMEM e disparar a nota
+  if (estadoNota == 0) {
+    // Lendo da memória Flash (ajuste os índices se suas colunas forem diferentes)
+    int freq = pgm_read_word(&(midi1[notaAtual][0])); 
+    duracaoAtual = pgm_read_word(&(midi1[notaAtual][1]));
+    pausaAtual = pgm_read_word(&(midi1[notaAtual][2]));
+
+    if (freq > 0) {
+      tone(pinoBuzzer, freq);
+    } else {
+      noTone(pinoBuzzer); // Frequência 0 geralmente significa silêncio no MIDI
+    }
+
+    tempoAnterior = tempoAtual; // Marca no relógio quando a nota começou
+    estadoNota = 1;             // Avança para a próxima fase
+  }
+  
+  // ESTADO 1: Esperando o tempo da duração da nota passar
+  else if (estadoNota == 1) {
+    if (tempoAtual - tempoAnterior >= duracaoAtual) {
+      noTone(pinoBuzzer);         // Para de soar a nota
+      tempoAnterior = tempoAtual; // Marca no relógio quando a pausa começou
+      estadoNota = 2;             // Avança para a fase de pausa
+    }
+  }
+  
+  // ESTADO 2: Esperando a pausa entre uma nota e outra passar
+  else if (estadoNota == 2) {
+    if (tempoAtual - tempoAnterior >= pausaAtual) {
+      notaAtual++;      // Pula para a próxima linha da matriz (próxima nota)
+      estadoNota = 0;   // Volta para a fase 0 para iniciar a nova nota
+    }
+  }
+}
+void loop() {
+  // Lê o estado atual do botão
+  int fiscal2 = digitalRead(btnPin); 
+
+  // Detecta a Borda de Subida (botão solto/mudança de estado)
+  if (fiscal2 == HIGH && fiscal == LOW) {
+    delay(50); // Debounce
+    est = !est; // Inverte o estado (tocar/parar)
+
+    if (est == true) { 
+      // Se entrou no estado de tocar, zera os contadores
+      notaAtual = 0;
+      estadoNota = 0;
+      Serial.println("Musica INICIADA.");
+      digitalWrite(4, LOW);
+        digitalWrite(5, LOW);
+    } else {
+      // Se parou a música no meio, cala o buzzer
+      noTone(pinoBuzzer);
+       // Liga o LED verde indicando que parou
+    }
+  }
+  
+  // Atualiza o estado anterior para a próxima leitura do loop
+  fiscal = fiscal2;
+
+  // Executa a música continuamente se o estado for 'true'
+  if (est == true) {
+    tocarMidiSemDelay(); 
+  } 
+  // O SEU SEGUNDO CÓDIGO VEM AQUI (Rodando continuamente quando a música para)
+  else {
+    digitalWrite(2, LOW);
+    delayMicroseconds(2);
+    digitalWrite(2, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(2, LOW);
+    digitalWrite(5, HIGH);
+	
+    long tempo = pulseIn(3, HIGH, 30000);
+    int distancia = tempo * 0.034 / 2;
+
+    if (distancia > 0 && distancia <= 20) {
+      if (!obj) {
+        sla++;
+        obj = true;
+        Serial.println("Objeto detectado");
+      }
+    } else {
+      obj = false;
+    }
+
+    unsigned long TAT = millis();
+    if (TAT - TAN >= intervalo) {
+      TAN = TAT;
+      
+      if (sla < sla2 - 1) {
+        tone(6, 300);
+        digitalWrite(4, HIGH);
+        digitalWrite(5, LOW);
+        sla = 0;
+      } else {
+        noTone(6); 
+        digitalWrite(5, HIGH);
+        digitalWrite(4, LOW);
+        sla = 0;
+      }
+    }
+  }
+}
